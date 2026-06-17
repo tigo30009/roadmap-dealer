@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: roadmap-fy27
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    plan: free

@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Dealers — Roadmap & Organograma FY27</title>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Figtree', sans-serif; background: #F0F0F3; min-height: 100vh; }
+
+/* ── NAV ── */
+.nav {
+  position: sticky; top: 0; z-index: 200;
+  background: #2C2C2A; padding: 0 20px;
+  display: flex; align-items: stretch; gap: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,.3);
+  height: 46px;
+}
+.nav-title { font-size: 14px; font-weight: 700; color: #fff; display: flex; align-items: center; padding-right: 24px; border-right: 1px solid rgba(255,255,255,.1); margin-right: 8px; }
+.nav-tab {
+  display: flex; align-items: center; padding: 0 18px;
+  font-size: 12px; font-weight: 600; color: rgba(255,255,255,.5);
+  cursor: pointer; border-bottom: 3px solid transparent;
+  transition: all .15s; user-select: none; white-space: nowrap;
+}
+.nav-tab:hover { color: rgba(255,255,255,.85); }
+.nav-tab.active { color: #fff; border-bottom-color: #E22446; }
+.nav-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.btn { padding: 5px 13px; border-radius: 6px; border: none; cursor: pointer; font-family: 'Figtree',sans-serif; font-size: 11px; font-weight: 600; }
+.btn-pdf   { background: #FAC775; color: #633806; }
+.btn-team  { background: #5B588F; color: #fff; }
+.btn-reset { background: #3a3838; color: #ccc; }
+.save-dot { width: 7px; height: 7px; border-radius: 50%; background: #10B981; opacity: 0; transition: opacity .4s; flex-shrink: 0; }
+.save-dot.show { opacity: 1; }
+
+/* ── VIEWS ── */
+.view { display: none; }
+.view.active { display: block; }
+
+/* ════════════════════════════════
+   ROADMAP VIEW
+════════════════════════════════ */
+.board-wrap { padding: 20px; overflow-x: auto; }
+.roadmap {
+  border-collapse: collapse; border: 1px solid #DCDCDC;
+  border-radius: 10px;
+  min-width: 700px; width: 100%; background: #fff;
+  border-spacing: 0; table-layout: fixed;
+}
+.roadmap thead th {
+  padding: 0; text-align: center;
+  border-left: 1px solid rgba(255,255,255,.2);
+  overflow: hidden; transition: width .22s ease; position: sticky;
+  top: 46px; z-index: 50;
+  box-shadow: 0 2px 4px rgba(0,0,0,.15);
+}
+.roadmap thead th:first-child { border-left: none; background: #2C2C2A; width: 130px; position: sticky; top: 46px; left: 0; z-index: 60; }
+.th-q0 { background: #E22446; }
+.th-q1 { background: #5B588F; }
+.th-q2 { background: #7B7AB8; }
+.th-q3 { background: #A09FC8; }
+.th-q4 { background: #C8C7DA; border-left: 1px solid #A09FC8 !important; }
+.th-q4 .th-label, .th-q4 .th-months { color: #3C3489 !important; }
+.th-inner { padding: 10px 32px 10px 14px; display: flex; flex-direction: column; align-items: center; }
+.th-label  { font-size: 12px; font-weight: 700; color: #fff; white-space: nowrap; }
+.th-months { font-size: 10px; color: rgba(255,255,255,.65); margin-top: 2px; white-space: nowrap; }
+.th-collapse {
+  position: absolute; top: 50%; right: 6px; transform: translateY(-50%);
+  background: rgba(255,255,255,.2); border: none; border-radius: 4px;
+  color: #fff; font-size: 12px; font-weight: 900; cursor: pointer;
+  width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity .15s; line-height: 1;
+}
+.roadmap thead th:hover .th-collapse { opacity: 1; }
+.roadmap thead th.col-collapsed { width: 28px !important; min-width: 28px; cursor: pointer; }
+.roadmap thead th.col-collapsed .th-inner { display: none; }
+.roadmap thead th.col-collapsed .th-collapse { opacity: 1; right: 50%; transform: translateY(-50%) translateX(50%) rotate(180deg); }
+.roadmap thead th.col-collapsed::before {
+  content: attr(data-label); display: block;
+  writing-mode: vertical-rl; font-size: 10px; font-weight: 700; color: #fff;
+  letter-spacing: .06em; text-align: center; padding: 8px 0; margin: 0 auto;
+}
+.roadmap thead th:nth-child(n+2) { width: calc((100% - 130px) / 5); }
+.roadmap tbody tr td { border-top: 1px solid #DCDCDC; border-left: 1px solid #DCDCDC; vertical-align: top; padding: 0; overflow: hidden; transition: width .22s ease; }
+.roadmap tbody tr td:first-child { border-left: none; position: sticky; left: 0; z-index: 10; background: #F4F4F6; }
+.roadmap tbody tr td.col-collapsed { width: 28px !important; min-width: 28px; }
+.roadmap tbody tr td.col-collapsed .data-cell { display: none; }
+
+/* Team label */
+.team-label {
+  background: #F4F4F6; padding: 10px 10px;
+  display: flex; align-items: flex-start; gap: 7px;
+  position: relative; height: 100%; min-height: 60px;
+}
+.accent-bar { width: 3px; border-radius: 4px; flex-shrink: 0; margin-top: 2px; align-self: stretch; min-height: 20px; }
+.team-name { font-size: 11px; font-weight: 700; color: #1A1A1A; line-height: 1.3; }
+.team-sub  { font-size: 9px; color: #999; margin-top: 2px; line-height: 1.4; }
+.team-hc   { display: flex; gap: 4px; margin-top: 5px; flex-wrap: wrap; }
+.hc-badge  { font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px; white-space: nowrap; }
+.hc-pm     { background: #FDEDF0; color: #A32D2D; }
+.hc-tech   { background: #E8EAF6; color: #1E3A5F; }
+.team-del  { display: none; position: absolute; top: 4px; right: 4px; background: #fee2e2; color: #dc2626; border: none; border-radius: 4px; width: 16px; height: 16px; font-size: 9px; cursor: pointer; align-items: center; justify-content: center; }
+.team-label:hover .team-del { display: flex; }
+
+/* Data cell */
+.data-cell { padding: 10px 8px 6px; min-height: 70px; display: flex; flex-direction: column; align-items: stretch; flex-wrap: nowrap; transition: background .12s; }
+.data-cell.drop-target { background: #EEF0FB !important; outline: 2px dashed #7B7AB8; outline-offset: -3px; }
+.insert-line { width: 100%; height: 2px; background: #7B7AB8; border-radius: 2px; margin: 2px 0; flex-shrink: 0; display: none; pointer-events: none; }
+.insert-line.show { display: block; }
+
+/* Tag */
+.tag { display: flex; align-items: center; padding: 5px 8px 5px 6px; border-radius: 8px; font-size: 11px; font-weight: 600; line-height: 1.3; margin-bottom: 4px; width: 100%; gap: 6px; cursor: grab; user-select: none; }
+.tag.is-dragging { opacity: .3; }
+.tag-gray  { background: #F0F0F2; color: #606068; border: 1px solid #DCDCDE; }
+.tag-amber { background: #FAEEDA; color: #633806; border: 1px solid #FAC775; }
+.prio-badge { flex-shrink: 0; width: 18px; height: 18px; border-radius: 50%; background: rgba(0,0,0,.08); font-size: 9px; font-weight: 800; display: flex; align-items: center; justify-content: center; opacity: .65; }
+.tag-amber .prio-badge { background: rgba(99,56,6,.15); }
+.tag-label { flex: 1; min-width: 0; word-break: break-word; outline: none; cursor: grab; }
+.tag.editing .tag-label { cursor: text; text-decoration: underline dotted 1px; }
+.edit-hint { display: none; position: absolute; bottom: -18px; left: 24px; font-size: 9px; color: #7B7AB8; background: #fff; padding: 1px 5px; border-radius: 4px; border: 1px solid #DCDCDC; white-space: nowrap; pointer-events: none; z-index: 10; }
+.tag:hover .edit-hint { display: block; }
+.tag.editing .edit-hint { display: none; }
+.tag-btns { display: none; gap: 3px; flex-shrink: 0; }
+.tag:hover .tag-btns { display: flex; }
+.tbtn { border: none; border-radius: 3px; cursor: pointer; font-size: 10px; padding: 1px 5px; font-family: 'Figtree',sans-serif; font-weight: 700; }
+.tbtn-star { background: #FEF3C7; color: #92400E; }
+.tbtn-del  { background: #fee2e2; color: #dc2626; }
+.add-btn { display: flex; align-items: center; gap: 3px; padding: 3px 8px; margin-top: 2px; border: 1px dashed #DCDCDC; border-radius: 6px; background: transparent; cursor: pointer; font-family: 'Figtree',sans-serif; font-size: 10px; color: #ACACAC; width: 100%; }
+.add-btn:hover { border-color: #7B7AB8; color: #7B7AB8; background: #EEF0FB; }
+
+/* ════════════════════════════════
+   ORGANOGRAMA VIEW
+════════════════════════════════ */
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  .org-scope body {
+    font-family: 'Poppins', 'Segoe UI', sans-serif;
+    background: #F4F6F9;
+    color: #1a1a2e;
+    min-height: 100vh;
+    padding: 28px 16px 48px;
+  }
+
+  /* ── Layout ── */
+  .org-scope .container { max-width: 1200px; margin: 0 auto; }
+
+  /* ── Header ── */
+  .org-scope .header-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+  .org-scope .header-label { font-size: 10px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: #E22446; margin-bottom: 4px; }
+  .org-scope .header-name { font-size: 24px; font-weight: 800; color: #1a1a2e; }
+  .org-scope .header-role { font-size: 13px; color: #6B7280; margin-top: 3px; }
+
+  /* ── Stats ── */
+  .org-scope .stats { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-start; }
+  .org-scope .stat-card {
+    background: #fff; border: 1.5px solid #e8e8ed; border-radius: 10px;
+    padding: 7px 14px; text-align: center; transition: all .3s ease;
+    min-width: 70px;
+  }
+  .org-scope .stat-card.highlight-product { background: #FFF5F7; border-color: #FECDD3; }
+  .org-scope .stat-card.highlight-tech { background: #EEF3F9; border-color: #BFDBFE; }
+  .org-scope .stat-value { font-size: 18px; font-weight: 800; color: #1a1a2e; }
+  .org-scope .stat-value.product { color: #E22446; }
+  .org-scope .stat-value.tech { color: #1E3A5F; }
+  .org-scope .stat-label { font-size: 10px; font-weight: 600; color: #9CA3AF; }
+  .org-scope .stat-label.product { color: #E22446; }
+  .org-scope .stat-label.tech { color: #1E3A5F; }
+
+  /* ── Leadership row ── */
+  .org-scope .leaders { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+  .org-scope .leader-card {
+    display: flex; align-items: center; gap: 9px;
+    border-radius: 10px; padding: 8px 14px;
+  }
+  .org-scope .leader-card.product { background: #FFF5F7; border: 1.5px solid #FECDD3; }
+  .org-scope .leader-card.tech { background: #EEF3F9; border: 1.5px solid #BFDBFE; }
+  .org-scope .leader-avatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800; color: #fff; flex-shrink: 0;
+  }
+  .org-scope .leader-name { font-size: 13px; font-weight: 700; color: #1a1a2e; }
+  .org-scope .leader-role { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+
+  /* ── Buttons ── */
+  .org-scope .btn-group { display: flex; gap: 8px; margin-left: auto; }
+  .org-scope .btn {
+    font-family: inherit; font-size: 11px; font-weight: 700;
+    letter-spacing: .04em; text-transform: uppercase;
+    border-radius: 8px; padding: 6px 14px; cursor: pointer;
+    border: 1.5px solid; transition: all .2s ease;
+  }
+  .org-scope .btn-tech { color: #1E3A5F; background: #EEF3F9; border-color: #BFDBFE; }
+  .org-scope .btn-tech.active { color: #fff;    background: #1E3A5F; border-color: #1E3A5F; }
+  .org-scope .btn-expand { color: #475569; background: #fff;    border-color: #e8e8ed; }
+
+  .org-scope .divider { height: 1px; background: #e8e8ed; margin-bottom: 16px; }
+
+  /* ── Grid ── */
+  .org-scope .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  /* ── Squad card ── */
+  .org-scope .squad-card {
+    background: #fff; border: 1.5px solid #e8e8ed; border-radius: 12px;
+    overflow: hidden; cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,.05);
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .org-scope .squad-card.open { border-color: #94A3B8; box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+  .org-scope .squad-accent { height: 3px; background: #e8e8ed; transition: background .2s; }
+  .org-scope .squad-card.open .squad-accent { background: #1E3A5F; }
+
+  .org-scope .squad-header { padding: 12px 14px; }
+  .org-scope .squad-header.has-border { border-bottom: 1px solid #e8e8ed; }
+  .org-scope .squad-title-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .org-scope .squad-name { font-weight: 700; font-size: 14px; color: #1a1a2e; }
+  .org-scope .squad-title-right { display: flex; align-items: center; gap: 6px; }
+  .org-scope .headcount-badge {
+    font-size: 11px; font-weight: 700; color: #fff;
+    background: #1E3A5F; border-radius: 20px; padding: 2px 9px;
+    display: none;
+  }
+  .org-scope .chevron {
+    font-size: 14px; color: #94A3B8; font-weight: 700;
+    display: inline-block; transition: transform .2s ease;
+    user-select: none;
+  }
+  .org-scope .squad-card.open .chevron { transform: rotate(180deg); }
+
+  /* PM / Tech rows */
+  .org-scope .pm-row, .org-scope .tech-row {
+    display: flex; align-items: center; gap: 8px;
+    border-radius: 8px; padding: 7px 10px;
+  }
+  .org-scope .pm-row { background: #FFF5F7; border: 1px solid #FECDD3; margin-bottom: 0; }
+  .org-scope .pm-row.has-tech { margin-bottom: 6px; }
+  .org-scope .tech-row { background: #EEF3F9; border: 1px solid #BFDBFE; display: none; flex-direction: column; align-items: stretch; gap: 4px; }
+  .org-scope .tech-row.no-tech { background: #F9FAFB; border-color: #E5E7EB; opacity: .6; }
+
+  .org-scope .row-tag {
+    font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+    background: #fff; border-radius: 3px; padding: 1px 5px; flex-shrink: 0;
+    align-self: flex-start; margin-top: 2px;
+  }
+  .org-scope .row-tag.pm { color: #E22446; border: 1px solid #FECDD3; }
+  .org-scope .row-tag.tech { color: #1E3A5F; border: 1px solid #BFDBFE; }
+  .org-scope .row-tag.tech.no-tech { color: #9CA3AF; border-color: #E5E7EB; }
+
+  .org-scope .pm-name { font-size: 12px; font-weight: 600; color: #374151; flex: 1; }
+  .org-scope .tech-top { display: flex; align-items: center; gap: 8px; }
+  .org-scope .coord-name { font-size: 12px; font-weight: 600; color: #374151; flex: 1; }
+  .org-scope .tech-count {
+    font-size: 11px; font-weight: 700; color: #fff;
+    background: #1E3A5F; border-radius: 20px; padding: 1px 8px; flex-shrink: 0;
+  }
+  .org-scope .tech-detail { font-size: 10px; color: #64748B; }
+  .org-scope .no-team-label { font-size: 10px; color: #9CA3AF; font-style: italic; }
+  .org-scope .no-tech-label { font-size: 12px; color: #9CA3AF; font-style: italic; }
+
+  /* Seniority badge */
+  .org-scope .badge {
+    font-size: 10px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+    border-radius: 4px; padding: 2px 6px; white-space: nowrap; flex-shrink: 0;
+  }
+
+  /* Responsibilities */
+  .org-scope .responsibilities { padding: 10px 14px 12px; background: #FAFAFA; display: none; }
+  .org-scope .squad-card.open .responsibilities { display: block; }
+  .org-scope .resp-label { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #9CA3AF; margin-bottom: 7px; }
+  .org-scope .resp-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+  .org-scope .resp-tag {
+    font-size: 11px; font-weight: 500; color: #475569;
+    background: #fff; border: 1px solid #E2E8F0;
+    border-radius: 5px; padding: 3px 8px;
+  }
+
+  /* ── Unowned card ── */
+  .org-scope .unowned {
+    background: #FFFBEB; border: 2px dashed #FCD34D;
+    border-radius: 12px; padding: 16px 18px; margin-bottom: 16px;
+  }
+  .org-scope .unowned-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .org-scope .unowned-icon {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #FEF3C7; border: 2px dashed #FCD34D;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0;
+  }
+  .org-scope .unowned-title { font-weight: 700; font-size: 14px; color: #92400E; }
+  .org-scope .unowned-sub { font-size: 11px; color: #B45309; margin-top: 1px; }
+  .org-scope .unowned-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .org-scope .unowned-tag {
+    font-size: 12px; font-weight: 600; color: #92400E;
+    background: #FEF3C7; border: 1.5px dashed #FCD34D;
+    border-radius: 6px; padding: 5px 12px;
+  }
+
+  /* ── Legend ── */
+  .org-scope .legend { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; margin-top: 4px; }
+  .org-scope .legend-item { display: flex; align-items: center; gap: 4px; }
+  .org-scope .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .org-scope .legend-sq { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+  .org-scope .legend-text { font-size: 10px; color: #9CA3AF; font-weight: 500; }
+  .org-scope .legend-text.bold { color: #6B7280; font-weight: 600; }
+  .org-scope .legend-sep { width: 1px; height: 12px; background: #e8e8ed; margin: 0 4px; }
+
+/* MODALS */
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:300; align-items:center; justify-content:center; }
+.modal-overlay.open { display:flex; }
+.modal { background:#fff; border-radius:12px; padding:24px; width:380px; box-shadow:0 20px 60px rgba(0,0,0,.25); }
+.modal h3 { font-size:15px; font-weight:700; margin-bottom:16px; }
+.modal input, .modal select { width:100%; border:1px solid #DCDCDC; border-radius:8px; padding:8px 12px; font-family:'Figtree',sans-serif; font-size:13px; margin-bottom:12px; outline:none; }
+.modal input:focus, .modal select:focus { border-color:#7B7AB8; }
+.modal-actions { display:flex; gap:8px; justify-content:flex-end; }
+.btn-cancel  { background:#F0F0F2; color:#606068; }
+.btn-confirm { background:#5B588F; color:#fff; }
+
+.toast { position:fixed; bottom:24px; right:24px; z-index:400; background:#2C2C2A; color:#fff; padding:10px 18px; border-radius:8px; font-size:12px; font-weight:600; transform:translateY(60px); opacity:0; transition:all .3s; pointer-events:none; }
+.toast.show { transform:translateY(0); opacity:1; }
+
+
+@media print {
+  .nav,.add-btn,.tag-btns,.team-del,.th-collapse,.edit-hint,.org-toolbar { display:none !important; }
+  body { background:#fff; } .board-wrap,.org-wrap { padding:4px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+
+    <!-- filled by JS -->
+  </div>
+</div>
+
+<div class="nav">
+  <div class="nav-title">🗂 Dealers FY27</div>
+  <div class="nav-tab active" id="tab-roadmap" onclick="switchView('roadmap')">📅 Roadmap por Time</div>
+  <div class="nav-tab" id="tab-org" onclick="switchView('org')">👥 Organograma & Capacity</div>
+  <div class="nav-actions">
+    <div class="save-dot" id="saveDot"></div>
+    <button class="btn btn-reset" id="resetBtn">↺ Resetar</button>
+    <button class="btn btn-team" id="addTeamBtn">+ Time</button>
+    <button class="btn btn-pdf" onclick="window.print()">⬇ PDF</button>
+  </div>
+</div>
+
+<!-- ══ ROADMAP VIEW ══ -->
+<div class="view active" id="view-roadmap">
+  <div class="board-wrap">
+    <table class="roadmap" id="roadmap">
+      <thead><tr id="header-row">
+        <th><span style="font-size:10px;font-weight:700;color:rgba(255,255,255,.45);letter-spacing:.07em;text-transform:uppercase;">Time</span></th>
+      </tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══ ORGANOGRAMA VIEW ══ -->
+<div class="view" id="view-org">
+  <div class="org-scope">
+    <div class="container">
+
+  <!-- Header -->
+  <div class="header-top">
+    <div>
+      <div class="header-label">Webmotors · Produto &amp; Ecossistema</div>
+      <div class="header-name">Thiago Lima</div>
+      <div class="header-role">GPM de Produtos para Dealers</div>
+    </div>
+    <div class="stats">
+      <div class="stat-card" id="stat-squads">
+        <div class="stat-value" id="val-squads">9</div>
+        <div class="stat-label">Squads</div>
+      </div>
+      <div class="stat-card" id="stat-iniciativas">
+        <div class="stat-value" id="val-iniciativas">—</div>
+        <div class="stat-label">Iniciativas</div>
+      </div>
+      <div class="stat-card highlight-product" id="stat-pessoas">
+        <div class="stat-value product" id="val-pessoas">—</div>
+        <div class="stat-label product" id="lbl-pessoas">Pessoas (produto)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaders + controls -->
+  <div class="leaders">
+    <div class="leader-card product">
+      <div class="leader-avatar" style="background:#E22446">T</div>
+      <div>
+        <div class="leader-name">Thiago Lima</div>
+        <div class="leader-role" style="color:#E22446">GPM Produto</div>
+      </div>
+    </div>
+    <div class="leader-card tech" id="cesar-card" style="display:none">
+      <div class="leader-avatar" style="background:#1E3A5F">C</div>
+      <div>
+        <div class="leader-name">César</div>
+        <div class="leader-role" style="color:#1E3A5F">Gerente Tech</div>
+      </div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-tech" id="btn-tech" onclick="toggleTech()">Mostrar Tech</button>
+      <button class="btn btn-expand" id="btn-expand" onclick="toggleAll()">Expandir tudo</button>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Squad grid -->
+  <div class="grid" id="grid"></div>
+
+  <!-- Unowned -->
+  <div class="unowned">
+    <div class="unowned-header">
+      <div class="unowned-icon">?</div>
+      <div>
+        <div class="unowned-title">Temas sem responsável definido</div>
+        <div class="unowned-sub">Requerem discussão de ownership — PM ou squad a definir</div>
+      </div>
+    </div>
+    <div class="unowned-tags">
+      <span class="unowned-tag">Gestão de Planos</span>
+      <span class="unowned-tag">Mídias</span>
+      <span class="unowned-tag">Feirões</span>
+      <span class="unowned-tag">Web TV</span>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-sq" style="background:#E22446"></div><span class="legend-text bold">Produto</span></div>
+    <div class="legend-item"><div class="legend-sq" style="background:#1E3A5F"></div><span class="legend-text bold">Tech</span></div>
+    <div class="legend-sep"></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#7C3AED"></div><span class="legend-text">PM Especialista</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#0369A1"></div><span class="legend-text">PM Sênior</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#047857"></div><span class="legend-text">PM Pleno</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#B45309"></div><span class="legend-text">PM Júnior</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#9CA3AF"></div><span class="legend-text">Vaga Congelada</span></div>
+  </div>
+
+</div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <h3>Adicionar iniciativa</h3>
+    <input type="text" id="newText" placeholder="Nome da iniciativa..." />
+    <select id="newType"><option value="gray">Backlog (cinza)</option><option value="amber">Prioritária (âmbar)</option></select>
+    <div class="modal-actions">
+      <button class="btn btn-cancel" onclick="closeAddModal()">Cancelar</button>
+      <button class="btn btn-confirm" onclick="confirmAdd()">Adicionar</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="teamModal">
+  <div class="modal">
+    <h3>Adicionar time</h3>
+    <input type="text" id="tName" placeholder="Nome do time..." />
+    <input type="text" id="tSub"  placeholder="Subtítulo..." />
+    <input type="color" id="tColor" value="#888888" style="height:36px;padding:4px;" />
+    <div class="modal-actions">
+      <button class="btn btn-cancel" onclick="closeTeamModal()">Cancelar</button>
+      <button class="btn btn-confirm" onclick="confirmTeam()">Adicionar</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+// SHARED DATA
+// ══════════════════════════════════════════
+const QUARTERS = [
+  { qi:0, cls:"th-q0", label:"⚡ AGORA", months:"Jun/26",       dataLabel:"AGORA" },
+  { qi:1, cls:"th-q1", label:"Q1",       months:"Jul – Set/26",  dataLabel:"Q1" },
+  { qi:2, cls:"th-q2", label:"Q2",       months:"Out – Dez/26",  dataLabel:"Q2" },
+  { qi:3, cls:"th-q3", label:"Q3",       months:"Jan – Mar/27",  dataLabel:"Q3" },
+  { qi:4, cls:"th-q4", label:"Q4",       months:"Abr – Jun/27",  dataLabel:"Q4" },
+];
+
+// Squad metadata: pm count = 1 per squad (PM), tech = coord(1) + teamSize
+const SQUAD_META = {
+  "CRM Leads":      { pm:1, coord:"Tiago Bauer",      tech:9,  pmName:"Rafael",      seniority:"PM Especialista", techDetail:"1 TL · 2 Front · 3 Back · 3 QA", items:["Gestão do Lead","Esquenta Lead","Relatórios","Distribuição de Leads","IA","Conversacional","Mensageria (WA e Chat)","Não Vendidos","Histórico de Busca"] },
+  "CRM Clientes":   { pm:1, coord:"Douglas",           tech:8,  pmName:"Felipe",      seniority:"PM Especialista", techDetail:"1 TL · 2 Front · 3 Back · 2 QA",  items:["Campanhas","Segmentações","Visão Clientes","Leads Core","Enriquecimento de Lead"] },
+  "Integrações":    { pm:1, coord:"Edson",              tech:5,  pmName:"Ariadine",    seniority:"PM Sênior",       techDetail:"1 TL · 2 Back · 2 QA",            items:["Integrações Marketplaces","Recebimento de Leads","Integração Infobip","Mobicol","Envio Lead CRM Terceiro"] },
+  "Estoque":        { pm:1, coord:"Paloma",             tech:0,  pmName:"(a definir)", seniority:"Vaga Aberta",     techDetail:"headcount a confirmar",            items:["Gestão de Estoque","Publicações","Regionalização","Visão 360","Vistoriado"] },
+  "Cockpit":        { pm:1, coord:"Julio César",        tech:0,  pmName:"(a definir)", seniority:"Vaga Aberta",     techDetail:"headcount a confirmar",            items:["Loja","Carteira","Saldo+Fidelidade","Cockpit Web","Backoffice Loja"] },
+  "Universidade":   { pm:1, coord:null,                 tech:0,  pmName:"Dennis",      seniority:"PM Júnior",       techDetail:null,                              items:["Cursos Presenciais e EADs","Gestão de Palestrantes","Plataforma Digital","Novos Cursos"] },
+  "Sales":          { pm:1, coord:"Arthur",             tech:4,  pmName:"Camila",      seniority:"PM Sênior",       techDetail:"headcount a confirmar",            items:["Criação de Produtos","Backoffice Comercial","Atualização de Preços"] },
+};
+
+const DEFAULT_TEAMS = [
+  { name:"CRM Leads", sub:"Negociações · IA · WA", color:"#3B82F6", cells:[
+    [{t:"Esquenta Leads outros canais",a:false},{t:"Ativação Automática IA",a:false},{t:"Dados Financiamento p/ CRM Terceiro",a:false},{t:"Venda Cotas IA na Loja",a:false}],
+    [{t:"RevendaMais — Unificação Cliente",a:true},{t:"Absorção CRM RevendaMais",a:true},{t:"Erros WhatsApp",a:false},{t:"Último veículo kanban/chat",a:false}],
+    [{t:"Absorção CRM Revenda Mais (cont.)",a:true},{t:"Jornadas – Relatórios",a:false},{t:"Jornadas – Configurações",a:false},{t:"Jornadas Distribuições",a:false}],
+    [{t:"LeadTurbo — Copiloto de Vendas",a:true},{t:"Melhorias IA",a:false},{t:"Evolução das Jornadas — Kanban",a:false},{t:"Evolução das Jornadas — Agendamentos",a:false}],
+    [{t:"Bolsão de leads",a:false},{t:"Frequency Cap WA",a:false},{t:"Jornadas – Kanban",a:false}],
+  ]},
+  { name:"CRM Clientes", sub:"Campanhas · segmentação", color:"#EF4444", cells:[
+    [{t:"Inconsistências Não Vendidos",a:false},{t:"Simulação de Financ Detalhe",a:false}],
+    [{t:"Segmentação 60 dias",a:false},{t:"Visão Cliente – outros portais",a:false},{t:"Campanhas para CRM terceiros",a:false},{t:"Novas segmentações",a:false},{t:"Relatórios de Campanhas",a:false}],
+    [{t:"Agente IA p/ CRM Terceiro",a:false},{t:"Enriquecimento de leads",a:false},{t:"Ordenação de clientes",a:false},{t:"Visão Cliente – Fluxo Loja",a:false}],
+    [{t:"Distribuição automática de leads",a:false},{t:"Insights lista de clientes",a:false}],
+    [],
+  ]},
+  { name:"Integrações", sub:"Canais · WhatsApp · OLX", color:"#8B5CF6", cells:[
+    [{t:"Edição número WA Cockpit",a:false},{t:"Ativação automática de WhatsApp",a:false},{t:"CAOA Integração (problemas)",a:false},{t:"Imagem ativação WA",a:false}],
+    [{t:"RM – Unificação Integrações",a:true},{t:"RM - Tela Publicação",a:true},{t:"Desassociar Lead OLX",a:false}],
+    [{t:"Refatorar Integração WhatsApp",a:true},{t:"RM Integrações de Leads",a:true}],
+    [{t:"Mudança de fornecedor WhatsApp",a:true},{t:"Jornada ativação FBM lojista",a:false}],
+    [],
+  ]},
+  { name:"Estoque", sub:"Anúncio · vistoria · IA", color:"#10B981", cells:[
+    [{t:"Estoque Insights V1",a:false},{t:"Pseudo Franquia (aumentar)",a:false},{t:"% valor máximo veículo",a:false},{t:"Problemas de Sincronização",a:true},{t:"Monitor de publicações",a:false}],
+    [{t:"Estúdio Digital por IA",a:false},{t:"Estoque Insights V2",a:false}],
+    [{t:"Automação fluxo Vistoriado",a:false},{t:"Anúncio via vídeo/foto",a:false}],
+    [{t:"IA gerenciador de estoque",a:false}],
+    [],
+  ]},
+  { name:"Cockpit", sub:"Loja · Carteira · APP PJ", color:"#BA7517", cells:[
+    [],
+    [{t:"Painel Inclusão Produtos Loja",a:false},{t:"Recomendação Loja via Target",a:false},{t:"Saldo Expirado – oportunidades",a:false},{t:"V3 BONUS – Lista Alvo",a:false}],
+    [{t:"Coletar WhatsApp Vendedor + optin",a:true},{t:"Régua Comunicação Carteira/Loja",a:false},{t:"Desconto Fatura",a:false},{t:"Parcelamento no Cockpit",a:false}],
+    [],
+    [],
+  ]},
+  { name:"Universidade", sub:"Capacitação · conteúdo", color:"#3B6D11", cells:[
+    [],
+    [{t:"Atualização conteúdo de módulos",a:false},{t:"Contratação novos Palestrantes",a:false}],
+    [{t:"Novo curso / Módulo",a:false},{t:"Revisão fluxo EAD",a:false}],
+    [],
+    [],
+  ]},
+  { name:"Sales", sub:"BackOffice Comercial", color:"#1D4ED8", cells:[
+    [{t:"Automatizar faturamento OEM",a:true},{t:"WorkFlow Mídias",a:false},{t:"Alteração na parametrização de importação de carteiras",a:false},{t:"Substituição de Planos",a:false}],
+    [{t:"Simplificação do Feirão Cadastro",a:true},{t:"Substituição de Planos Combo",a:false},{t:"Refatoração telas HUB",a:false},{t:"Feirão Cancelamento/vendas em lotes",a:false}],
+    [{t:"Simplificação do Feirão (jornada)",a:true},{t:"Patrocínio",a:false},{t:"Evoluir jornada de precificação",a:false}],
+    [],
+    [],
+  ]},
+  { name:"Aplicativo Cockpit", sub:"—", color:"#64748B", cells:[
+    [],
+    [{t:"RM - Adaptar alterações Estoque",a:true}],
+    [],
+    [{t:"RM - Projetar nova experiência",a:true}],
+    [{t:"RM - Projetar nova experiência (cont.)",a:true}],
+  ]},
+  { name:"Revenda Mais", sub:"Unificação Plataforma", color:"#E22446", cells:[
+    [{t:"Unificação Catálogo",a:true}],
+    [{t:"Unificação Lojas",a:true},{t:"Unificação base de veículos",a:true},{t:"Unificação de usuários e autenticação",a:false},{t:"Migração base de veículos",a:false},{t:"Nova Inclusão de veículos",a:false}],
+    [{t:"Gestão de Grupos",a:false},{t:"Unificação de permissionamento",a:false}],
+    [],
+    [],
+  ]},
+];
+const API_URL = window.location.origin + "/api/data";
+let TEAMS = JSON.parse(JSON.stringify(DEFAULT_TEAMS));
+let dragInfo = null;
+let saveTimer = null;
+const collapsedCols = new Set();
+
+// ══════════════════════════════════════════
+// NAV
+// ══════════════════════════════════════════
+function switchView(name) {
+  document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+  document.querySelectorAll(".nav-tab").forEach(t => t.classList.remove("active"));
+  document.getElementById("view-" + name).classList.add("active");
+  document.getElementById("tab-" + name).classList.add("active");
+  if (name === 'org') { renderGrid(); }
+  const isRoadmap = name === "roadmap";
+  document.getElementById("addTeamBtn").style.display = isRoadmap ? "" : "none";
+  document.getElementById("resetBtn").style.display   = isRoadmap ? "" : "none";
+  document.getElementById("resetBtn").onclick = isRoadmap ? resetData : null;
+  document.getElementById("addTeamBtn").onclick = isRoadmap ? openTeamModal : null;
+}
+
+// ══════════════════════════════════════════
+// PERSIST
+// ══════════════════════════════════════════
+async function loadData() {
+  try {
+    const res = await fetch(API_URL);
+    const data = await res.json();
+    if (data.teams) {
+      TEAMS = data.teams;
+      if (data.cols) data.cols.forEach(qi => collapsedCols.add(Number(qi)));
+    }
+  } catch(e) { console.warn("Could not load from server, using defaults", e); }
+  render();
+}
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    try {
+      await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ teams: TEAMS, cols: [...collapsedCols] })
+      });
+      const dot = document.getElementById("saveDot");
+      dot.classList.add("show"); setTimeout(() => dot.classList.remove("show"), 1500);
+    } catch(e) { console.warn("Save failed", e); }
+  }, 800);
+}
+function resetData() {
+  if (!confirm("Apagar todos os ajustes e voltar ao roadmap original?")) return;
+  localStorage.removeItem(STORAGE_KEY);
+  TEAMS = JSON.parse(JSON.stringify(DEFAULT_TEAMS));
+  collapsedCols.clear(); render(); toast("Resetado ✓");
+}
+
+// ══════════════════════════════════════════
+// COLLAPSE
+// ══════════════════════════════════════════
+function toggleCol(qi) {
+  collapsedCols.has(qi) ? collapsedCols.delete(qi) : collapsedCols.add(qi);
+  applyCollapse();
+  saveCollapseState();
+}
+
+function saveCollapseState() {
+  scheduleSave(); // cols are saved together with teams
+}
+
+function loadCollapseState() {
+  // handled by loadData()
+}
+function applyCollapse() {
+  QUARTERS.forEach(({ qi }) => {
+    const th = document.getElementById("th-q" + qi);
+    const tds = document.querySelectorAll("#tbody tr td:nth-child(" + (qi + 2) + ")");
+    const collapsed = collapsedCols.has(qi);
+    th && th.classList.toggle("col-collapsed", collapsed);
+    tds.forEach(td => td.classList.toggle("col-collapsed", collapsed));
+  });
+}
+
+// ══════════════════════════════════════════
+// ROADMAP RENDER
+// ══════════════════════════════════════════
+function renderHeaders() {
+  const row = document.getElementById("header-row");
+  while (row.children.length > 1) row.removeChild(row.lastChild);
+  QUARTERS.forEach(({ qi, cls, label, months, dataLabel }) => {
+    const th = document.createElement("th");
+    th.id = "th-q" + qi; th.className = cls;
+    th.setAttribute("data-label", dataLabel);
+    th.innerHTML = `<div class="th-inner"><span class="th-label">${label}</span><span class="th-months">${months}</span></div>
+      <button class="th-collapse" onclick="toggleCol(${qi})">‹</button>`;
+    row.appendChild(th);
+  });
+}
+
+function render() {
+  renderHeaders();
+  const tbody = document.getElementById("tbody");
+  tbody.innerHTML = "";
+  TEAMS.forEach((team, ti) => {
+    const meta = SQUAD_META[team.name] || { pm:1, tech:0 };
+    const tr = document.createElement("tr");
+    const tdL = document.createElement("td");
+    tdL.style.background = "#F4F4F6";
+    tdL.innerHTML = `<div class="team-label">
+      <div class="accent-bar" style="background:${team.color}"></div>
+      <div style="flex:1">
+        <div class="team-name">${team.name}</div>
+        <div class="team-sub">${team.sub}</div>
+        <div class="team-hc">
+          <span class="hc-badge hc-pm">👤 ${meta.pm} PM</span>
+          ${meta.tech > 0 ? `<span class="hc-badge hc-tech">⚙ ${meta.tech} tech</span>` : '<span class="hc-badge" style="background:#F5F5F5;color:#aaa;">tech a confirmar</span>'}
+        </div>
+      </div>
+      <button class="team-del" onclick="removeTeam(${ti})">✕</button>
+    </div>`;
+    tr.appendChild(tdL);
+    QUARTERS.forEach(({ qi }) => { const td = document.createElement("td"); td.appendChild(makeCell(ti, qi)); tr.appendChild(td); });
+    tbody.appendChild(tr);
+  });
+  applyCollapse();
+}
+
+function makeCell(ti, qi) {
+  const dc = document.createElement("div");
+  dc.className = "data-cell"; dc.dataset.ti = ti; dc.dataset.qi = qi;
+  (TEAMS[ti].cells[qi] || []).forEach((_, ii) => dc.appendChild(makeTag(ti, qi, ii)));
+  const addBtn = document.createElement("button");
+  addBtn.className = "add-btn"; addBtn.textContent = "+ adicionar";
+  addBtn.addEventListener("click", () => openAddModal(ti, qi));
+  dc.appendChild(addBtn);
+  dc.addEventListener("dragenter", e => e.preventDefault());
+  dc.addEventListener("dragover", e => { e.preventDefault(); if (e.target === dc || e.target === addBtn) { dc.classList.add("drop-target"); clearLines(dc); } });
+  dc.addEventListener("dragleave", e => { if (!dc.contains(e.relatedTarget)) { dc.classList.remove("drop-target"); clearLines(dc); } });
+  dc.addEventListener("drop", e => {
+    e.preventDefault(); dc.classList.remove("drop-target"); clearLines(dc);
+    if (!dragInfo) return;
+    const { ti: fti, qi: fqi, ii: fii } = dragInfo;
+    const item = TEAMS[fti].cells[fqi].splice(fii, 1)[0];
+    if (!TEAMS[ti].cells[qi]) TEAMS[ti].cells[qi] = [];
+    TEAMS[ti].cells[qi].push(item);
+    dragInfo = null; render(); scheduleSave();
+    toast(fti===ti && fqi===qi ? "Reordenado ✓" : "Movido ✓");
+  });
+  return dc;
+}
+
+function makeTag(ti, qi, ii) {
+  const item = TEAMS[ti].cells[qi][ii];
+  const tag = document.createElement("div");
+  tag.className = "tag " + (item.a ? "tag-amber" : "tag-gray");
+  tag.draggable = true; tag.dataset.ti = ti; tag.dataset.qi = qi; tag.dataset.ii = ii;
+  const badge = document.createElement("span"); badge.className = "prio-badge"; badge.textContent = ii + 1;
+  const lbl = document.createElement("span"); lbl.className = "tag-label"; lbl.textContent = item.t;
+  const hint = document.createElement("span"); hint.className = "edit-hint"; hint.textContent = "duplo clique para editar";
+  const btns = document.createElement("span"); btns.className = "tag-btns";
+  const star = document.createElement("button"); star.className = "tbtn tbtn-star"; star.textContent = item.a ? "★" : "☆";
+  star.addEventListener("click", e => { e.stopPropagation(); TEAMS[ti].cells[qi][ii].a = !item.a; render(); scheduleSave(); });
+  const del = document.createElement("button"); del.className = "tbtn tbtn-del"; del.textContent = "✕";
+  del.addEventListener("click", e => { e.stopPropagation(); TEAMS[ti].cells[qi].splice(ii,1); render(); scheduleSave(); toast("Removido"); });
+  btns.appendChild(star); btns.appendChild(del);
+  tag.appendChild(badge); tag.appendChild(lbl); tag.appendChild(hint); tag.appendChild(btns);
+  tag.addEventListener("dblclick", e => {
+    e.stopPropagation(); tag.classList.add("editing"); tag.draggable = false;
+    lbl.contentEditable = "true"; lbl.focus();
+    const r = document.createRange(); r.selectNodeContents(lbl);
+    const s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+  });
+  lbl.addEventListener("blur", () => {
+    const v = lbl.textContent.trim();
+    if (v) { TEAMS[ti].cells[qi][ii].t = v; scheduleSave(); } else lbl.textContent = item.t;
+    lbl.contentEditable = "false"; tag.classList.remove("editing"); tag.draggable = true;
+  });
+  lbl.addEventListener("keydown", e => { if (e.key==="Enter") { e.preventDefault(); lbl.blur(); } if (e.key==="Escape") { lbl.textContent=item.t; lbl.blur(); } });
+  tag.addEventListener("dragstart", e => {
+    if (tag.classList.contains("editing")) { e.preventDefault(); return; }
+    dragInfo = { ti, qi, ii };
+    e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", item.t);
+    const ghost = tag.cloneNode(true);
+    ghost.style.cssText = "position:fixed;top:-999px;left:-999px;width:" + tag.offsetWidth + "px;opacity:.9;pointer-events:none;";
+    document.body.appendChild(ghost);
+    e.dataTransfer.setDragImage(ghost, 20, 14);
+    setTimeout(() => { tag.classList.add("is-dragging"); document.body.removeChild(ghost); }, 0);
+  });
+  tag.addEventListener("dragend", () => {
+    tag.classList.remove("is-dragging"); dragInfo = null;
+    document.querySelectorAll(".drop-target").forEach(c => c.classList.remove("drop-target"));
+    document.querySelectorAll(".insert-line").forEach(l => l.remove());
+  });
+  tag.addEventListener("dragenter", e => { e.preventDefault(); e.stopPropagation(); });
+  tag.addEventListener("dragover", e => {
+    e.preventDefault(); e.stopPropagation(); if (!dragInfo) return;
+    const dc = tag.closest(".data-cell"); dc.classList.remove("drop-target");
+    const rect = tag.getBoundingClientRect(); const above = e.clientY < rect.top + rect.height / 2;
+    clearLines(dc);
+    const line = document.createElement("div"); line.className = "insert-line show";
+    if (above) dc.insertBefore(line, tag);
+    else { const nx = tag.nextSibling; nx ? dc.insertBefore(line, nx) : dc.insertBefore(line, dc.querySelector(".add-btn")); }
+  });
+  tag.addEventListener("dragleave", e => {
+    const dc = tag.closest(".data-cell");
+    if (!dc.contains(e.relatedTarget)) { clearLines(dc); dc.classList.remove("drop-target"); }
+  });
+  tag.addEventListener("drop", e => {
+    e.preventDefault(); e.stopPropagation(); if (!dragInfo) return;
+    const dc = tag.closest(".data-cell");
+    const toTi = parseInt(dc.dataset.ti), toQi = parseInt(dc.dataset.qi), toIi = parseInt(tag.dataset.ii);
+    const rect = tag.getBoundingClientRect(); const above = e.clientY < rect.top + rect.height / 2;
+    const { ti: fti, qi: fqi, ii: fii } = dragInfo;
+    const item = TEAMS[fti].cells[fqi].splice(fii, 1)[0];
+    let ins = (fti===toTi && fqi===toQi) ? (above ? (fii<toIi?toIi-1:toIi) : (fii<toIi?toIi:toIi+1)) : (above ? toIi : toIi+1);
+    if (!TEAMS[toTi].cells[toQi]) TEAMS[toTi].cells[toQi] = [];
+    ins = Math.max(0, Math.min(ins, TEAMS[toTi].cells[toQi].length));
+    TEAMS[toTi].cells[toQi].splice(ins, 0, item);
+    clearLines(dc); dragInfo = null; render(); scheduleSave();
+    toast(fti===toTi && fqi===toQi ? "Reordenado ✓" : "Movido ✓");
+  });
+  return tag;
+}
+function clearLines(dc) { dc.querySelectorAll(".insert-line").forEach(l => l.remove()); }
+
+// ══ ORGANOGRAMA ══
+const seniorityColor = {
+  "PM Especialista": { color: "#7C3AED", bg: "#F3EEFF" },
+  "PM Sênior":       { color: "#0369A1", bg: "#E0F2FE" },
+  "PM Pleno":        { color: "#047857", bg: "#DCFCE7" },
+  "PM Júnior":       { color: "#B45309", bg: "#FEF9C3" },
+  "Vaga Congelada":  { color: "#9CA3AF", bg: "#F3F4F6" },
+};
+
+const squads = [
+  {
+    name: "Cockpit",
+    pm: "Ana Paula", seniority: "PM Pleno",
+    coord: "Julio César", teamSize: 6, techDetail: null,
+    items: ["Carteira", "Autenticação", "Loja", "Usuários e Permissionamentos", "Central de Notificações"],
+  },
+  {
+    name: "Estoque",
+    pm: "Marisa", seniority: "PM Sênior",
+    coord: "Paloma", teamSize: 7, techDetail: "1 TL · 1 Front · 4 Back · 1 QA",
+    items: ["Aceleradores", "Vistoriado", "VIP Gestão", "Estoque Terceiro", "Nitro", "Relatórios de Estoque", "Regionalização", "Visão 360", "Gestão de Estoque", "Publicações"],
+  },
+  {
+    name: "Integrações",
+    pm: "Ariadine", seniority: "PM Sênior",
+    coord: "Edson", teamSize: 8, techDetail: "1 TL · 1 Back Sênior · 2 Back Pleno · 1 Back Júnior · 1 Front Júnior · 2 QA Pleno",
+    items: ["Integrações Marketplaces", "Recebimento de Leads (Marketplaces)", "Recebimento de Leads (Parceria Certa)", "Integração Infobip", "Mobicol", "Envio de Lead para CRM Terceiro"],
+  },
+  {
+    name: "CRM Leads",
+    pm: "Rafael", seniority: "PM Especialista",
+    coord: "Tiago Bauer", teamSize: 9, techDetail: "1 TL · 2 Front · 3 Back · 3 QA · 2 vagas congeladas",
+    items: ["Gestão do Lead", "Esquenta Lead", "Relatórios", "Distribuição de Leads", "IA", "Conversacional", "Mensageria (WhatsApp e Chat)", "Não Vendidos", "Histórico de Busca do Cliente"],
+  },
+  {
+    name: "CRM Clientes",
+    pm: "Felipe", seniority: "PM Especialista",
+    coord: "Douglas", teamSize: 8, techDetail: "1 TL · 2 Front Sênior · 3 Back · 2 QA · 1 vaga aberta (QA Pleno)",
+    items: ["Campanhas", "Segmentações", "Visão Clientes", "Leads Core", "Enriquecimento de Lead"],
+  },
+  {
+    name: "Revenda Mais",
+    pm: "Deucimara", seniority: "PM Sênior",
+    coord: "Alan", teamSize: 7, techDetail: "1 TL · 1 Front · 3 Back · 2 QA",
+    items: ["Unificação Cockpit + Revenda Mais", "Faturas", "Módulo Financeiro", "Gestor de Estoque", "Nota Fiscal", "Integradores"],
+  },
+  {
+    name: "Universidade",
+    pm: "Dennis", seniority: "PM Júnior",
+    coord: null, teamSize: 0, techDetail: null,
+    items: ["Atualização de Cursos Presenciais e EADs", "Gestão e Contratação de Palestrantes", "Manutenção da Plataforma Digital", "Criação de Novos Cursos"],
+  },
+  {
+    name: "Sales",
+    pm: "Camila", seniority: "PM Sênior",
+    coord: "Arthur", teamSize: 4, techDetail: null,
+    items: ["Criação de Produtos", "Gestão de Backoffice Comercial", "Atualização de Preços"],
+  },
+  {
+    name: "Aplicativo Cockpit",
+    pm: "— Vaga aberta", seniority: "Vaga Congelada",
+    coord: "Rodrigo Yamachiro", teamSize: 0, noTeam: true, techDetail: null,
+    items: ["Manutenção do App", "Evolução de Estoque no App", "Notificações", "CRM no App", "Faturas no App"],
+  },
+];
+
+let showTech = false;
+let allOpen  = false;
+const openState = {};
+
+function totalPeopleCalc() {
+  const pms = squads.filter(s => s.seniority !== "Vaga Congelada").length;
+  if (!showTech) return pms + 1; // PMs + Thiago
+  const tech = squads.reduce((a, s) => a + (s.coord ? 1 : 0) + (s.teamSize || 0), 0);
+  return pms + 1 + tech + 1; // + César
+}
+
+function totalInitiatives() {
+  return squads.reduce((a, s) => a + s.items.length, 0);
+}
+
+function renderBadge(seniority) {
+  const s = seniorityColor[seniority] || { color: "#9CA3AF", bg: "#F3F4F6" };
+  return `<span class="badge" style="color:${s.color};background:${s.bg}">${seniority}</span>`;
+}
+
+function renderCard(squad) {
+  const hasTech  = squad.coord !== null;
+  const totalPpl = squad.teamSize + 1 + (hasTech ? 1 : 0);
+  const isOpen   = !!openState[squad.name];
+  const id       = 'card-' + squad.name.replace(/\s+/g, '-');
+
+  const respTags = squad.items.map(i => `<span class="resp-tag">${i}</span>`).join('');
+
+  let techRowHtml = '';
+  if (hasTech) {
+    const countHtml = squad.noTeam
+      ? `<span class="no-team-label">sem time disponível</span>`
+      : `<span class="tech-count">${squad.teamSize + 1} tech</span>`;
+    const detailHtml = squad.techDetail
+      ? `<div class="tech-detail">${squad.techDetail}</div>` : '';
+    techRowHtml = `
+      <div class="tech-row" id="tech-${id}">
+        <span class="row-tag tech">TECH</span>
+        <div style="flex:1">
+          <div class="tech-top">
+            <span class="coord-name">${squad.coord}</span>
+            ${countHtml}
+          </div>
+          ${detailHtml}
+        </div>
+      </div>`;
+  } else {
+    techRowHtml = `
+      <div class="tech-row no-tech" id="tech-${id}">
+        <span class="row-tag tech no-tech">TECH</span>
+        <span class="no-tech-label">sem coordenador / sem time</span>
+      </div>`;
+  }
+
+  const hcBadge = (hasTech && !squad.noTeam)
+    ? `<span class="headcount-badge" id="hc-${id}">${totalPpl} pessoas</span>` : '';
+
+  return `
+    <div class="squad-card ${isOpen ? 'open' : ''}" id="${id}" onclick="toggleCard('${squad.name}')">
+      <div class="squad-accent"></div>
+      <div class="squad-header ${isOpen ? 'has-border' : ''}">
+        <div class="squad-title-row">
+          <span class="squad-name">${squad.name}</span>
+          <div class="squad-title-right">
+            ${hcBadge}
+            <span class="chevron">▾</span>
+          </div>
+        </div>
+        <div class="pm-row ${showTech ? 'has-tech' : ''}">
+          <span class="row-tag pm">PM</span>
+          <span class="pm-name">${squad.pm}</span>
+          ${renderBadge(squad.seniority)}
+        </div>
+        ${techRowHtml}
+      </div>
+      <div class="responsibilities">
+        <div class="resp-label">Responsabilidades</div>
+        <div class="resp-tags">${respTags}</div>
+      </div>
+    </div>`;
+}
+
+function renderGrid() {
+  document.getElementById('grid').innerHTML = squads.map(renderCard).join('');
+  applyTechVisibility();
+  updateStats();
+}
+
+function applyTechVisibility() {
+  squads.forEach(squad => {
+    const id   = 'card-' + squad.name.replace(/\s+/g, '-');
+    const hasTech = squad.coord !== null;
+    const totalPpl = squad.teamSize + 1 + (hasTech ? 1 : 0);
+
+    const techRow = document.getElementById('tech-' + id);
+    const hcBadge = document.getElementById('hc-' + id);
+    const pmRow   = document.querySelector(`#${id} .pm-row`);
+
+    if (techRow) techRow.style.display = showTech ? 'flex' : 'none';
+    if (hcBadge) hcBadge.style.display = (showTech && hasTech && !squad.noTeam) ? 'inline-block' : 'none';
+    if (pmRow)   pmRow.classList.toggle('has-tech', showTech);
+  });
+}
+
+function updateStats() {
+  document.getElementById('val-squads').textContent      = squads.length;
+  document.getElementById('val-iniciativas').textContent  = totalInitiatives();
+  document.getElementById('val-pessoas').textContent      = totalPeopleCalc();
+
+  const statCard  = document.getElementById('stat-pessoas');
+  const valEl     = document.getElementById('val-pessoas');
+  const lblEl     = document.getElementById('lbl-pessoas');
+
+  statCard.className = 'stat-card ' + (showTech ? 'highlight-tech' : 'highlight-product');
+  valEl.className    = 'stat-value ' + (showTech ? 'tech' : 'product');
+  lblEl.className    = 'stat-label ' + (showTech ? 'tech' : 'product');
+  lblEl.textContent  = showTech ? 'Pessoas (total)' : 'Pessoas (produto)';
+}
+
+function toggleCard(name) {
+  openState[name] = !openState[name];
+  const id  = 'card-' + name.replace(/\s+/g, '-');
+  const el  = document.getElementById(id);
+  const hdr = el.querySelector('.squad-header');
+  el.classList.toggle('open', !!openState[name]);
+  hdr.classList.toggle('has-border', !!openState[name]);
+  allOpen = squads.every(s => openState[s.name]);
+  document.getElementById('btn-expand').textContent = allOpen ? 'Recolher' : 'Expandir tudo';
+}
+
+function toggleTech() {
+  showTech = !showTech;
+  const btn    = document.getElementById('btn-tech');
+  const cesar  = document.getElementById('cesar-card');
+  btn.textContent = showTech ? 'Ocultar Tech' : 'Mostrar Tech';
+  btn.classList.toggle('active', showTech);
+  cesar.style.display = showTech ? 'flex' : 'none';
+  applyTechVisibility();
+  updateStats();
+}
+
+function toggleAll() {
+  allOpen = !allOpen;
+  squads.forEach(s => { openState[s.name] = allOpen; });
+  document.getElementById('btn-expand').textContent = allOpen ? 'Recolher' : 'Expandir tudo';
+  renderGrid();
+}
+
+// Init
+renderGrid();
+
+
+// ══════════════════════════════════════════
+// ADD / REMOVE
+// ══════════════════════════════════════════
+let pendingAdd = null;
+function openAddModal(ti, qi) {
+  pendingAdd = {ti,qi}; document.getElementById("newText").value = ""; document.getElementById("newType").value = "gray";
+  document.getElementById("addModal").classList.add("open"); setTimeout(() => document.getElementById("newText").focus(), 60);
+}
+function closeAddModal() { document.getElementById("addModal").classList.remove("open"); pendingAdd = null; }
+function confirmAdd() {
+  const text = document.getElementById("newText").value.trim(); if (!text || !pendingAdd) return;
+  const {ti,qi} = pendingAdd; if (!TEAMS[ti].cells[qi]) TEAMS[ti].cells[qi] = [];
+  TEAMS[ti].cells[qi].push({t:text, a:document.getElementById("newType").value==="amber"});
+  closeAddModal(); render(); scheduleSave(); toast("Adicionado ✓");
+}
+function openTeamModal() {
+  document.getElementById("tName").value=""; document.getElementById("tSub").value=""; document.getElementById("tColor").value="#888888";
+  document.getElementById("teamModal").classList.add("open"); setTimeout(() => document.getElementById("tName").focus(), 60);
+}
+function closeTeamModal() { document.getElementById("teamModal").classList.remove("open"); }
+function confirmTeam() {
+  const name = document.getElementById("tName").value.trim(); if (!name) return;
+  TEAMS.push({name, sub:document.getElementById("tSub").value.trim()||"—", color:document.getElementById("tColor").value, cells:[[],[],[],[],[]]});
+  closeTeamModal(); render(); scheduleSave(); toast("Time adicionado ✓");
+}
+function removeTeam(ti) {
+  if (!confirm(`Remover "${TEAMS[ti].name}"?`)) return;
+  TEAMS.splice(ti,1); render(); scheduleSave(); toast("Removido");
+}
+
+function toast(msg) {
+  const t = document.getElementById("toast"); t.textContent = msg; t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2000);
+}
+
+document.addEventListener("keydown", e => {
+  if (e.key==="Escape") { closeAddModal(); closeTeamModal(); }
+  if (e.key==="Enter") {
+    if (document.getElementById("addModal").classList.contains("open")) confirmAdd();
+    if (document.getElementById("teamModal").classList.contains("open")) confirmTeam();
+  }
+});
+
+// ── INIT ──
+loadData(); // async: fetches server data then calls render()
+
+</script>
+</body>
+</html>
