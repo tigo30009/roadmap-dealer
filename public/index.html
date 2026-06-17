@@ -50,11 +50,9 @@ body { font-family: 'Figtree', sans-serif; background: #F0F0F3; min-height: 100v
 .roadmap thead th {
   padding: 0; text-align: center;
   border-left: 1px solid rgba(255,255,255,.2);
-  overflow: hidden; transition: width .22s ease; position: sticky;
-  top: 46px; z-index: 50;
-  box-shadow: 0 2px 4px rgba(0,0,0,.15);
+  overflow: hidden; transition: width .22s ease;
 }
-.roadmap thead th:first-child { border-left: none; background: #2C2C2A; width: 130px; position: sticky; top: 46px; left: 0; z-index: 60; }
+.roadmap thead th:first-child { border-left: none; background: #2C2C2A; width: 130px;  }
 .th-q0 { background: #E22446; }
 .th-q1 { background: #5B588F; }
 .th-q2 { background: #7B7AB8; }
@@ -82,7 +80,7 @@ body { font-family: 'Figtree', sans-serif; background: #F0F0F3; min-height: 100v
 }
 .roadmap thead th:nth-child(n+2) { width: calc((100% - 130px) / 5); }
 .roadmap tbody tr td { border-top: 1px solid #DCDCDC; border-left: 1px solid #DCDCDC; vertical-align: top; padding: 0; overflow: hidden; transition: width .22s ease; }
-.roadmap tbody tr td:first-child { border-left: none; position: sticky; left: 0; z-index: 10; background: #F4F4F6; }
+.roadmap tbody tr td:first-child { border-left: none; background: #F4F4F6; }
 .roadmap tbody tr td.col-collapsed { width: 28px !important; min-width: 28px; }
 .roadmap tbody tr td.col-collapsed .data-cell { display: none; }
 
@@ -324,6 +322,32 @@ body { font-family: 'Figtree', sans-serif; background: #F0F0F3; min-height: 100v
 .toast.show { transform:translateY(0); opacity:1; }
 
 
+
+/* ── FLOATING HEADER ── */
+#float-header {
+  display: none;
+  position: fixed;
+  top: 46px;
+  z-index: 99;
+  background: transparent;
+  pointer-events: none;
+}
+#float-header.visible { display: block; }
+#float-header table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  table-layout: fixed;
+  background: transparent;
+}
+#float-header th {
+  padding: 0;
+  text-align: center;
+  border-left: 1px solid rgba(255,255,255,.2);
+  overflow: hidden;
+  pointer-events: all;
+}
+#float-header .th-collapse { pointer-events: all; }
+
 @media print {
   .nav,.add-btn,.tag-btns,.team-del,.th-collapse,.edit-hint,.org-toolbar { display:none !important; }
   body { background:#fff; } .board-wrap,.org-wrap { padding:4px; }
@@ -338,6 +362,8 @@ body { font-family: 'Figtree', sans-serif; background: #F0F0F3; min-height: 100v
   </div>
 </div>
 
+
+<div id="float-header"><table id="float-table"><thead><tr id="float-row"></tr></thead></table></div>
 <div class="nav">
   <div class="nav-title">🗂 Dealers FY27</div>
   <div class="nav-tab active" id="tab-roadmap" onclick="switchView('roadmap')">📅 Roadmap por Time</div>
@@ -386,6 +412,14 @@ body { font-family: 'Figtree', sans-serif; background: #F0F0F3; min-height: 100v
       <div class="stat-card highlight-product" id="stat-pessoas">
         <div class="stat-value product" id="val-pessoas">—</div>
         <div class="stat-label product" id="lbl-pessoas">Pessoas (produto)</div>
+      </div>
+      <div class="stat-card" id="stat-contratadas">
+        <div class="stat-value" id="val-contratadas">—</div>
+        <div class="stat-label">Posições preenchidas</div>
+      </div>
+      <div class="stat-card" style="border-color:#FCA5A5;" id="stat-abertas">
+        <div class="stat-value" style="color:#DC2626;" id="val-abertas">—</div>
+        <div class="stat-label" style="color:#DC2626;">Vagas abertas / congeladas</div>
       </div>
     </div>
   </div>
@@ -490,14 +524,16 @@ const QUARTERS = [
 
 // Squad metadata: pm count = 1 per squad (PM), tech = coord(1) + teamSize
 const SQUAD_META = {
-  "CRM Leads":      { pm:1, coord:"Tiago Bauer",      tech:9,  pmName:"Rafael",      seniority:"PM Especialista", techDetail:"1 TL · 2 Front · 3 Back · 3 QA", items:["Gestão do Lead","Esquenta Lead","Relatórios","Distribuição de Leads","IA","Conversacional","Mensageria (WA e Chat)","Não Vendidos","Histórico de Busca"] },
-  "CRM Clientes":   { pm:1, coord:"Douglas",           tech:8,  pmName:"Felipe",      seniority:"PM Especialista", techDetail:"1 TL · 2 Front · 3 Back · 2 QA",  items:["Campanhas","Segmentações","Visão Clientes","Leads Core","Enriquecimento de Lead"] },
-  "Integrações":    { pm:1, coord:"Edson",              tech:5,  pmName:"Ariadine",    seniority:"PM Sênior",       techDetail:"1 TL · 2 Back · 2 QA",            items:["Integrações Marketplaces","Recebimento de Leads","Integração Infobip","Mobicol","Envio Lead CRM Terceiro"] },
-  "Estoque":        { pm:1, coord:"Paloma",             tech:0,  pmName:"(a definir)", seniority:"Vaga Aberta",     techDetail:"headcount a confirmar",            items:["Gestão de Estoque","Publicações","Regionalização","Visão 360","Vistoriado"] },
-  "Cockpit":        { pm:1, coord:"Julio César",        tech:0,  pmName:"(a definir)", seniority:"Vaga Aberta",     techDetail:"headcount a confirmar",            items:["Loja","Carteira","Saldo+Fidelidade","Cockpit Web","Backoffice Loja"] },
-  "Universidade":   { pm:1, coord:null,                 tech:0,  pmName:"Dennis",      seniority:"PM Júnior",       techDetail:null,                              items:["Cursos Presenciais e EADs","Gestão de Palestrantes","Plataforma Digital","Novos Cursos"] },
-  "Sales":          { pm:1, coord:"Arthur",             tech:4,  pmName:"Camila",      seniority:"PM Sênior",       techDetail:"headcount a confirmar",            items:["Criação de Produtos","Backoffice Comercial","Atualização de Preços"] },
-};
+  "CRM Leads":      { pm:1, coord:"Tiago Bauer",      tech:10, pmName:"Rafael",         seniority:"PM Especialista", techDetail:"1 Coord. · 1 TL · 3 Back · 2 Front · 3 QA · 2 congeladas",  items:["Gestão do Lead","Esquenta Lead","Relatórios","Distribuição de Leads","IA","Conversacional","Mensageria (WA e Chat)","Não Vendidos","Histórico de Busca"] },
+  "CRM Clientes":   { pm:1, coord:"Douglas",           tech:9,  pmName:"Felipe",          seniority:"PM Especialista", techDetail:"1 Coord. · 1 TL · 3 Back · 2 Front · 2 QA · 1 congelada",  items:["Campanhas","Segmentações","Visão Clientes","Leads Core","Enriquecimento de Lead"] },
+  "Integrações":    { pm:1, coord:"Edson",              tech:9,  pmName:"Ariadine",         seniority:"PM Sênior",       techDetail:"1 Coord. · 1 TL · 4 Back · 1 Front · 2 QA",                 items:["Integrações Marketplaces","Recebimento de Leads","Integração Infobip","Mobicol","Envio Lead CRM Terceiro"] },
+  "Estoque":        { pm:1, coord:"Paloma",             tech:6,  pmName:"Marisa",          seniority:"PM Sênior",       techDetail:"1 Coord. · 3 Back · 1 Front · 1 QA · 1 vaga aberta",        items:["Gestão de Estoque","Publicações","Regionalização","Visão 360","Vistoriado"] },
+  "Cockpit":        { pm:1, coord:"Julio César",        tech:9,  pmName:"Ana Paula",       seniority:"PM Pleno",        techDetail:"1 Coord. · 1 TL · 3 Back · 2 Front · 2 QA",                 items:["Loja","Carteira","Autenticação","Usuários e Permissionamentos","Central de Notificações"] },
+  "Universidade":   { pm:1, coord:null,                 tech:1,  pmName:"Dennis",          seniority:"PM Júnior",       techDetail:"1 Front · 1 congelada · sem coordenador",                   items:["Cursos Presenciais e EADs","Gestão de Palestrantes","Plataforma Digital","Novos Cursos"] },
+  "Sales":          { pm:1, coord:"Arthur",             tech:8,  pmName:"Camila",          seniority:"PM Sênior",       techDetail:"1 Coord. · 1 TL · 3 Back · 1 Front · 2 QA · 1 congelada",  items:["Criação de Produtos","Backoffice Comercial","Atualização de Preços"] },
+  "Aplicativo Cockpit": { pm:1, coord:"Rodrigo Yamachiro", tech:10, pmName:"— Vaga aberta", seniority:"Vaga Congelada", techDetail:"1 Coord. · 1 TL · 3 Android · 3 iOS · 2 QA",              items:["Manutenção do App","Evolução de Estoque no App","Notificações","CRM no App","Faturas no App"] },
+  "Revenda Mais":   { pm:1, coord:"Alan",               tech:8,  pmName:"Deucimara",       seniority:"PM Sênior",       techDetail:"1 Coord. · 1 TL · 3 Back · 1 Front · 2 QA",                items:["Unificação Cockpit + RM","Faturas","Módulo Financeiro","Gestor de Estoque","Nota Fiscal"] },
+}
 
 const DEFAULT_TEAMS = [
   { name:"CRM Leads", sub:"Negociações · IA · WA", color:"#3B82F6", cells:[
@@ -564,8 +600,8 @@ const DEFAULT_TEAMS = [
     [],
   ]},
 ];
-const API_URL = window.location.origin + "/api/data";
-let TEAMS = JSON.parse(JSON.stringify(DEFAULT_TEAMS));
+const STORAGE_KEY = "roadmap_fy27_v6";
+let TEAMS = loadData();
 let dragInfo = null;
 let saveTimer = null;
 const collapsedCols = new Set();
@@ -589,30 +625,17 @@ function switchView(name) {
 // ══════════════════════════════════════════
 // PERSIST
 // ══════════════════════════════════════════
-async function loadData() {
-  try {
-    const res = await fetch(API_URL);
-    const data = await res.json();
-    if (data.teams) {
-      TEAMS = data.teams;
-      if (data.cols) data.cols.forEach(qi => collapsedCols.add(Number(qi)));
-    }
-  } catch(e) { console.warn("Could not load from server, using defaults", e); }
-  render();
+function loadData() {
+  try { const s = localStorage.getItem(STORAGE_KEY); if (s) return JSON.parse(s); } catch(e){}
+  return JSON.parse(JSON.stringify(DEFAULT_TEAMS));
 }
 function scheduleSave() {
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(async () => {
-    try {
-      await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ teams: TEAMS, cols: [...collapsedCols] })
-      });
-      const dot = document.getElementById("saveDot");
-      dot.classList.add("show"); setTimeout(() => dot.classList.remove("show"), 1500);
-    } catch(e) { console.warn("Save failed", e); }
-  }, 800);
+  saveTimer = setTimeout(() => {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(TEAMS)); } catch(e){}
+    const dot = document.getElementById("saveDot");
+    dot.classList.add("show"); setTimeout(() => dot.classList.remove("show"), 1500);
+  }, 600);
 }
 function resetData() {
   if (!confirm("Apagar todos os ajustes e voltar ao roadmap original?")) return;
@@ -631,11 +654,14 @@ function toggleCol(qi) {
 }
 
 function saveCollapseState() {
-  scheduleSave(); // cols are saved together with teams
+  try { localStorage.setItem("roadmap_fy27_cols_v6", JSON.stringify([...collapsedCols])); } catch(e){}
 }
 
 function loadCollapseState() {
-  // handled by loadData()
+  try {
+    const s = localStorage.getItem("roadmap_fy27_cols_v6");
+    if (s) JSON.parse(s).forEach(qi => collapsedCols.add(qi));
+  } catch(e){}
 }
 function applyCollapse() {
   QUARTERS.forEach(({ qi }) => {
@@ -799,66 +825,30 @@ const seniorityColor = {
 };
 
 const squads = [
-  {
-    name: "Cockpit",
-    pm: "Ana Paula", seniority: "PM Pleno",
-    coord: "Julio César", teamSize: 6, techDetail: null,
-    items: ["Carteira", "Autenticação", "Loja", "Usuários e Permissionamentos", "Central de Notificações"],
-  },
-  {
-    name: "Estoque",
-    pm: "Marisa", seniority: "PM Sênior",
-    coord: "Paloma", teamSize: 7, techDetail: "1 TL · 1 Front · 4 Back · 1 QA",
-    items: ["Aceleradores", "Vistoriado", "VIP Gestão", "Estoque Terceiro", "Nitro", "Relatórios de Estoque", "Regionalização", "Visão 360", "Gestão de Estoque", "Publicações"],
-  },
-  {
-    name: "Integrações",
-    pm: "Ariadine", seniority: "PM Sênior",
-    coord: "Edson", teamSize: 8, techDetail: "1 TL · 1 Back Sênior · 2 Back Pleno · 1 Back Júnior · 1 Front Júnior · 2 QA Pleno",
-    items: ["Integrações Marketplaces", "Recebimento de Leads (Marketplaces)", "Recebimento de Leads (Parceria Certa)", "Integração Infobip", "Mobicol", "Envio de Lead para CRM Terceiro"],
-  },
-  {
-    name: "CRM Leads",
-    pm: "Rafael", seniority: "PM Especialista",
-    coord: "Tiago Bauer", teamSize: 9, techDetail: "1 TL · 2 Front · 3 Back · 3 QA · 2 vagas congeladas",
-    items: ["Gestão do Lead", "Esquenta Lead", "Relatórios", "Distribuição de Leads", "IA", "Conversacional", "Mensageria (WhatsApp e Chat)", "Não Vendidos", "Histórico de Busca do Cliente"],
-  },
-  {
-    name: "CRM Clientes",
-    pm: "Felipe", seniority: "PM Especialista",
-    coord: "Douglas", teamSize: 8, techDetail: "1 TL · 2 Front Sênior · 3 Back · 2 QA · 1 vaga aberta (QA Pleno)",
-    items: ["Campanhas", "Segmentações", "Visão Clientes", "Leads Core", "Enriquecimento de Lead"],
-  },
-  {
-    name: "Revenda Mais",
-    pm: "Deucimara", seniority: "PM Sênior",
-    coord: "Alan", teamSize: 7, techDetail: "1 TL · 1 Front · 3 Back · 2 QA",
-    items: ["Unificação Cockpit + Revenda Mais", "Faturas", "Módulo Financeiro", "Gestor de Estoque", "Nota Fiscal", "Integradores"],
-  },
-  {
-    name: "Universidade",
-    pm: "Dennis", seniority: "PM Júnior",
-    coord: null, teamSize: 0, techDetail: null,
-    items: ["Atualização de Cursos Presenciais e EADs", "Gestão e Contratação de Palestrantes", "Manutenção da Plataforma Digital", "Criação de Novos Cursos"],
-  },
-  {
-    name: "Sales",
-    pm: "Camila", seniority: "PM Sênior",
-    coord: "Arthur", teamSize: 4, techDetail: null,
-    items: ["Criação de Produtos", "Gestão de Backoffice Comercial", "Atualização de Preços"],
-  },
-  {
-    name: "Aplicativo Cockpit",
-    pm: "— Vaga aberta", seniority: "Vaga Congelada",
-    coord: "Rodrigo Yamachiro", teamSize: 0, noTeam: true, techDetail: null,
-    items: ["Manutenção do App", "Evolução de Estoque no App", "Notificações", "CRM no App", "Faturas no App"],
-  },
-];
+  { name:"Cockpit",            pm:"Ana Paula",      seniority:"PM Pleno",        coord:"Julio César",       teamSize:9,  techDetail:"1 Coord. · 1 TL · 3 Back · 2 Front · 2 QA",                  items:["Carteira","Autenticação","Loja","Usuários e Permissionamentos","Central de Notificações"] },
+  { name:"Estoque",            pm:"Marisa",         seniority:"PM Sênior",       coord:"Paloma",            teamSize:6,  techDetail:"1 Coord. · 3 Back · 1 Front · 1 QA · 1 vaga aberta",          items:["Aceleradores","Vistoriado","VIP Gestão","Estoque Terceiro","Nitro","Relatórios de Estoque","Regionalização","Visão 360","Gestão de Estoque","Publicações"] },
+  { name:"Integrações",        pm:"Ariadine",       seniority:"PM Sênior",       coord:"Edson",             teamSize:9,  techDetail:"1 Coord. · 1 TL · 4 Back · 1 Front · 2 QA",                   items:["Integrações Marketplaces","Recebimento de Leads (Marketplaces)","Recebimento de Leads (Parceria Certa)","Integração Infobip","Mobicol","Envio de Lead para CRM Terceiro"] },
+  { name:"CRM Leads",          pm:"Rafael",         seniority:"PM Especialista", coord:"Tiago Bauer",       teamSize:10, techDetail:"1 Coord. · 1 TL · 3 Back · 2 Front · 3 QA · 2 congeladas",   items:["Gestão do Lead","Esquenta Lead","Relatórios","Distribuição de Leads","IA","Conversacional","Mensageria (WhatsApp e Chat)","Não Vendidos","Histórico de Busca do Cliente"] },
+  { name:"CRM Clientes",       pm:"Felipe",         seniority:"PM Especialista", coord:"Douglas",           teamSize:9,  techDetail:"1 Coord. · 1 TL · 3 Back · 2 Front · 2 QA · 1 congelada",   items:["Campanhas","Segmentações","Visão Clientes","Leads Core","Enriquecimento de Lead"] },
+  { name:"Revenda Mais",       pm:"Deucimara",      seniority:"PM Sênior",       coord:"Alan",              teamSize:8,  techDetail:"1 Coord. · 1 TL · 3 Back · 1 Front · 2 QA",                   items:["Unificação Cockpit + Revenda Mais","Faturas","Módulo Financeiro","Gestor de Estoque","Nota Fiscal","Integradores"] },
+  { name:"Universidade",       pm:"Dennis",         seniority:"PM Júnior",       coord:null,                teamSize:1,  techDetail:"1 Front · 1 congelada · sem coordenador",                     items:["Atualização de Cursos Presenciais e EADs","Gestão e Contratação de Palestrantes","Manutenção da Plataforma Digital","Criação de Novos Cursos"] },
+  { name:"Sales",              pm:"Camila",         seniority:"PM Sênior",       coord:"Arthur",            teamSize:8,  techDetail:"1 Coord. · 1 TL · 3 Back · 1 Front · 2 QA · 1 congelada",   items:["Criação de Produtos","Gestão de Backoffice Comercial","Atualização de Preços"] },
+  { name:"Aplicativo Cockpit", pm:"— Vaga aberta", seniority:"Vaga Congelada",  coord:"Rodrigo Yamachiro", teamSize:10, techDetail:"1 Coord. · 1 TL · 3 Android · 3 iOS · 2 QA",                items:["Manutenção do App","Evolução de Estoque no App","Notificações","CRM no App","Faturas no App"] },
+]
 
 let showTech = false;
 let allOpen  = false;
 const openState = {};
 
+const HC_FILLED = { "Aplicativo Cockpit":10,"Cockpit":9,"CRM Clientes":9,"CRM Leads":10,"Estoque":6,"Integrações":9,"Sales":8,"Revenda Mais":8,"Universidade":1 };
+const HC_FROZEN = { "CRM Clientes":1,"CRM Leads":2,"Estoque":1,"Sales":1,"Universidade":1 };
+const HC_OPEN   = { "Estoque":1 };
+function totalFilledPositions() {
+  return Object.values(HC_FILLED).reduce((a,b)=>a+b,0) + squads.filter(s=>s.seniority!=="Vaga Congelada").length + 2;
+}
+function totalOpenPositions() {
+  return Object.values(HC_OPEN).reduce((a,b)=>a+b,0) + Object.values(HC_FROZEN).reduce((a,b)=>a+b,0) + squads.filter(s=>s.seniority==="Vaga Congelada").length;
+}
 function totalPeopleCalc() {
   const pms = squads.filter(s => s.seniority !== "Vaga Congelada").length;
   if (!showTech) return pms + 1; // PMs + Thiago
@@ -963,6 +953,8 @@ function updateStats() {
   document.getElementById('val-squads').textContent      = squads.length;
   document.getElementById('val-iniciativas').textContent  = totalInitiatives();
   document.getElementById('val-pessoas').textContent      = totalPeopleCalc();
+  const _c=document.getElementById('val-contratadas'); if(_c) _c.textContent=totalFilledPositions();
+  const _a=document.getElementById('val-abertas');     if(_a) _a.textContent=totalOpenPositions();
 
   const statCard  = document.getElementById('stat-pessoas');
   const valEl     = document.getElementById('val-pessoas');
@@ -1051,7 +1043,67 @@ document.addEventListener("keydown", e => {
 });
 
 // ── INIT ──
-loadData(); // async: fetches server data then calls render()
+loadCollapseState();
+render();
+
+/* ── FLOATING HEADER JS ── */
+function syncFloatHeader() {
+  const realThead = document.querySelector('#roadmap thead');
+  const floatDiv  = document.getElementById('float-header');
+  const floatRow  = document.getElementById('float-row');
+  if (!realThead || !floatDiv || !floatRow) return;
+
+  const rect = realThead.getBoundingClientRect();
+
+  // Show float header only when real thead scrolls above nav
+  if (rect.bottom < 46) {
+    floatDiv.classList.add('visible');
+  } else {
+    floatDiv.classList.remove('visible');
+    return;
+  }
+
+  // Sync width and position to match the real table
+  const tableRect = document.getElementById('roadmap').getBoundingClientRect();
+  const boardWrap = document.querySelector('.board-wrap');
+  floatDiv.style.left   = tableRect.left + 'px';
+  floatDiv.style.width  = tableRect.width + 'px';
+  document.getElementById('float-table').style.width = tableRect.width + 'px';
+
+  // Sync each th width from real header
+  const realThs = realThead.querySelectorAll('th');
+  const floatThs = floatRow.querySelectorAll('th');
+
+  if (floatThs.length !== realThs.length) {
+    // Rebuild float row to match real header
+    floatRow.innerHTML = '';
+    realThs.forEach(realTh => {
+      const th = realTh.cloneNode(true);
+      th.style.width = realTh.offsetWidth + 'px';
+      // Re-bind collapse buttons
+      const btn = th.querySelector('.th-collapse');
+      if (btn) {
+        const qi = parseInt(realTh.id.replace('th-q',''));
+        btn.onclick = () => toggleCol(qi);
+      }
+      floatRow.appendChild(th);
+    });
+  } else {
+    realThs.forEach((realTh, i) => {
+      floatThs[i].style.width = realTh.offsetWidth + 'px';
+      // sync collapsed state
+      floatThs[i].className = realTh.className;
+    });
+  }
+
+  // Sync horizontal scroll
+  floatDiv.scrollLeft = boardWrap ? boardWrap.scrollLeft : 0;
+}
+
+window.addEventListener('scroll', syncFloatHeader, { passive: true });
+window.addEventListener('resize', syncFloatHeader, { passive: true });
+document.querySelector('.board-wrap') && document.querySelector('.board-wrap').addEventListener('scroll', syncFloatHeader, { passive: true });
+
 
 </script>
 </body>
