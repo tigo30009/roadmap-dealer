@@ -348,6 +348,105 @@ body { font-family: 'Figtree', sans-serif; background: #F0F0F3; min-height: 100v
 }
 #float-header .th-collapse { pointer-events: all; }
 
+
+/* ── DONE DRAWER ── */
+#done-drop-zone {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 64px;
+  background: linear-gradient(to top, #064E3B, #065F46);
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  color: #6EE7B7; font-size: 13px; font-weight: 700;
+  z-index: 150;
+  transition: height .25s, opacity .25s;
+  opacity: 0; pointer-events: none;
+  border-top: 2px solid #059669;
+}
+#done-drop-zone.drag-active {
+  opacity: 1; pointer-events: all;
+}
+#done-drop-zone.drag-over {
+  height: 80px;
+  background: linear-gradient(to top, #065F46, #047857);
+  color: #fff;
+  border-top-color: #34D399;
+}
+#done-drop-zone .dz-icon { font-size: 22px; }
+
+#done-drawer {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  max-height: 0;
+  overflow: hidden;
+  background: #fff;
+  border-top: 2px solid #059669;
+  z-index: 140;
+  transition: max-height .35s ease;
+  box-shadow: 0 -4px 24px rgba(0,0,0,.12);
+}
+#done-drawer.open {
+  max-height: 45vh;
+  overflow-y: auto;
+}
+.done-drawer-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 20px;
+  background: #F0FDF4;
+  border-bottom: 1px solid #D1FAE5;
+  position: sticky; top: 0; z-index: 1;
+}
+.done-drawer-header h3 {
+  font-size: 13px; font-weight: 700; color: #065F46; flex: 1;
+}
+.done-drawer-header span {
+  font-size: 11px; color: #6EE7B7; background: #065F46;
+  padding: 2px 8px; border-radius: 100px; font-weight: 700;
+}
+.done-close-btn {
+  background: none; border: none; cursor: pointer;
+  font-size: 16px; color: #065F46; padding: 0 4px;
+  line-height: 1;
+}
+.done-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  padding: 16px 20px 20px;
+}
+.done-squad {
+  display: flex; flex-direction: column; gap: 6px;
+}
+.done-squad-label {
+  font-size: 10px; font-weight: 700; color: #6B7280;
+  letter-spacing: .05em; text-transform: uppercase;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #E5E7EB;
+}
+.done-tag {
+  display: flex; align-items: center; gap: 6px;
+  background: #F0FDF4; border: 1px solid #BBF7D0;
+  border-radius: 8px; padding: 5px 10px;
+  font-size: 11px; font-weight: 600; color: #065F46;
+}
+.done-tag-restore {
+  margin-left: auto; background: none; border: none;
+  cursor: pointer; font-size: 11px; color: #9CA3AF;
+  padding: 0; line-height: 1; flex-shrink: 0;
+}
+.done-tag-restore:hover { color: #EF4444; }
+.done-toggle-btn {
+  position: fixed; bottom: 0; right: 20px;
+  background: #065F46; color: #6EE7B7;
+  border: none; border-radius: 8px 8px 0 0;
+  padding: 6px 14px; font-size: 11px; font-weight: 700;
+  cursor: pointer; z-index: 145;
+  display: none;
+  font-family: 'Figtree', sans-serif;
+  transition: background .15s;
+}
+.done-toggle-btn:hover { background: #047857; }
+.done-toggle-btn.has-items { display: flex; align-items: center; gap: 6px; }
+
 @media print {
   .nav,.add-btn,.tag-btns,.team-del,.th-collapse,.edit-hint,.org-toolbar { display:none !important; }
   body { background:#fff; } .board-wrap,.org-wrap { padding:4px; }
@@ -509,6 +608,28 @@ body { font-family: 'Figtree', sans-serif; background: #F0F0F3; min-height: 100v
   </div>
 </div>
 <div class="toast" id="toast"></div>
+
+<!-- DONE DROP ZONE -->
+<div id="done-drop-zone">
+  <span class="dz-icon">✅</span>
+  <span>Solte aqui para marcar como concluído</span>
+</div>
+
+<!-- DONE DRAWER -->
+<div id="done-drawer">
+  <div class="done-drawer-header">
+    <h3>✅ Concluídos</h3>
+    <span id="done-count">0</span>
+    <button class="done-close-btn" onclick="closeDoneDrawer()">✕</button>
+  </div>
+  <div class="done-grid" id="done-grid"></div>
+</div>
+
+<!-- DONE TOGGLE BUTTON -->
+<button class="done-toggle-btn" id="done-toggle-btn" onclick="toggleDoneDrawer()">
+  ✅ <span id="done-btn-label">Concluídos (0)</span>
+</button>
+
 
 <script>
 // ══════════════════════════════════════════
@@ -1055,6 +1176,124 @@ document.addEventListener("keydown", e => {
     if (document.getElementById("teamModal").classList.contains("open")) confirmTeam();
   }
 });
+
+
+/* ── DONE ITEMS ── */
+// DONE structure: array of { t, a, teamName }
+if (!window.DONE_ITEMS) window.DONE_ITEMS = [];
+
+function loadDone() {
+  try {
+    const s = localStorage.getItem("roadmap_done_v1");
+    if (s) window.DONE_ITEMS = JSON.parse(s);
+  } catch(e) {}
+}
+
+function saveDone() {
+  try { localStorage.setItem("roadmap_done_v1", JSON.stringify(window.DONE_ITEMS)); } catch(e){}
+}
+
+function renderDone() {
+  const grid  = document.getElementById("done-grid");
+  const count = document.getElementById("done-count");
+  const btn   = document.getElementById("done-toggle-btn");
+  const lbl   = document.getElementById("done-btn-label");
+  if (!grid) return;
+
+  const total = window.DONE_ITEMS.length;
+  count.textContent = total;
+  lbl.textContent   = "Concluídos (" + total + ")";
+  btn.classList.toggle("has-items", total > 0);
+
+  if (total === 0) { grid.innerHTML = '<p style="color:#9CA3AF;font-size:12px;padding:8px 0;">Nenhum item concluído ainda.</p>'; return; }
+
+  // Group by team
+  const byTeam = {};
+  window.DONE_ITEMS.forEach((item, idx) => {
+    const t = item.teamName || "Geral";
+    if (!byTeam[t]) byTeam[t] = [];
+    byTeam[t].push({ ...item, idx });
+  });
+
+  grid.innerHTML = "";
+  Object.entries(byTeam).forEach(([team, items]) => {
+    const col = document.createElement("div");
+    col.className = "done-squad";
+    col.innerHTML = '<div class="done-squad-label">' + team + '</div>';
+    items.forEach(item => {
+      const tag = document.createElement("div");
+      tag.className = "done-tag";
+      tag.innerHTML = '<span style="flex:1">' + item.t + '</span>' +
+        '<button class="done-tag-restore" title="Restaurar" onclick="restoreDone(' + item.idx + ')">↩</button>';
+      col.appendChild(tag);
+    });
+    grid.appendChild(col);
+  });
+}
+
+function addToDone(item, teamName) {
+  window.DONE_ITEMS.push({ t: item.t, a: item.a, teamName });
+  saveDone();
+  renderDone();
+}
+
+function restoreDone(idx) {
+  const item = window.DONE_ITEMS.splice(idx, 1)[0];
+  // Find the team and add back to AGORA (qi=0)
+  const team = TEAMS.find(t => t.name === item.teamName);
+  if (team) {
+    if (!team.cells[0]) team.cells[0] = [];
+    team.cells[0].push({ t: item.t, a: item.a });
+    scheduleSave();
+    render();
+  }
+  saveDone();
+  renderDone();
+  toast("Restaurado em AGORA ✓");
+}
+
+function toggleDoneDrawer() {
+  const drawer = document.getElementById("done-drawer");
+  drawer.classList.toggle("open");
+}
+function closeDoneDrawer() {
+  document.getElementById("done-drawer").classList.remove("open");
+}
+
+/* ── DRAG TO DONE ZONE ── */
+function onDragStartGlobal() {
+  document.getElementById("done-drop-zone").classList.add("drag-active");
+}
+function onDragEndGlobal() {
+  document.getElementById("done-drop-zone").classList.remove("drag-active");
+  document.getElementById("done-drop-zone").classList.remove("drag-over");
+}
+
+document.addEventListener("dragstart", onDragStartGlobal);
+document.addEventListener("dragend",   onDragEndGlobal);
+
+const dropZone = document.getElementById("done-drop-zone");
+dropZone.addEventListener("dragover",  (e) => { e.preventDefault(); dropZone.classList.add("drag-over"); });
+dropZone.addEventListener("dragleave", ()  => { dropZone.classList.remove("drag-over"); });
+dropZone.addEventListener("drop", (e) => {
+  e.preventDefault();
+  dropZone.classList.remove("drag-over");
+  if (!dragInfo) return;
+  const { ti, qi, ii } = dragInfo;
+  const item     = TEAMS[ti].cells[qi].splice(ii, 1)[0];
+  const teamName = TEAMS[ti].name;
+  addToDone(item, teamName);
+  scheduleSave();
+  render();
+  dragInfo = null;
+  // Open drawer to show the item
+  document.getElementById("done-drawer").classList.add("open");
+  toast("Marcado como concluído ✅");
+});
+
+// Init done
+loadDone();
+renderDone();
 
 // ── INIT ──
 loadData(); // async: fetches server data then calls render()
