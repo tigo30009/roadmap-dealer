@@ -600,8 +600,8 @@ const DEFAULT_TEAMS = [
     [],
   ]},
 ];
-const STORAGE_KEY = "roadmap_fy27_v6";
-let TEAMS = loadData();
+const API_URL = window.location.origin + "/api/data";
+let TEAMS = JSON.parse(JSON.stringify(DEFAULT_TEAMS));
 let dragInfo = null;
 let saveTimer = null;
 const collapsedCols = new Set();
@@ -625,23 +625,40 @@ function switchView(name) {
 // ══════════════════════════════════════════
 // PERSIST
 // ══════════════════════════════════════════
-function loadData() {
-  try { const s = localStorage.getItem(STORAGE_KEY); if (s) return JSON.parse(s); } catch(e){}
-  return JSON.parse(JSON.stringify(DEFAULT_TEAMS));
+async function loadData() {
+  try {
+    const res  = await fetch(API_URL);
+    const data = await res.json();
+    if (data && data.teams && data.teams.length > 0) {
+      TEAMS = data.teams;
+      if (data.cols) data.cols.forEach(qi => collapsedCols.add(Number(qi)));
+    }
+    // if server is empty → keep DEFAULT_TEAMS as-is
+  } catch(e) {
+    console.warn("Could not load from server, using defaults", e);
+  }
+  render();
 }
 function scheduleSave() {
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(TEAMS)); } catch(e){}
-    const dot = document.getElementById("saveDot");
-    dot.classList.add("show"); setTimeout(() => dot.classList.remove("show"), 1500);
-  }, 600);
+  saveTimer = setTimeout(async () => {
+    try {
+      await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ teams: TEAMS, cols: [...collapsedCols] })
+      });
+      const dot = document.getElementById("saveDot");
+      dot.classList.add("show"); setTimeout(() => dot.classList.remove("show"), 1500);
+    } catch(e) { console.warn("Save failed", e); }
+  }, 800);
 }
 function resetData() {
   if (!confirm("Apagar todos os ajustes e voltar ao roadmap original?")) return;
-  localStorage.removeItem(STORAGE_KEY);
   TEAMS = JSON.parse(JSON.stringify(DEFAULT_TEAMS));
-  collapsedCols.clear(); render(); toast("Resetado ✓");
+  collapsedCols.clear();
+  scheduleSave();
+  render(); toast("Resetado ✓");
 }
 
 // ══════════════════════════════════════════
@@ -654,14 +671,11 @@ function toggleCol(qi) {
 }
 
 function saveCollapseState() {
-  try { localStorage.setItem("roadmap_fy27_cols_v6", JSON.stringify([...collapsedCols])); } catch(e){}
+  scheduleSave(); // cols saved together with teams on server
 }
 
 function loadCollapseState() {
-  try {
-    const s = localStorage.getItem("roadmap_fy27_cols_v6");
-    if (s) JSON.parse(s).forEach(qi => collapsedCols.add(qi));
-  } catch(e){}
+  // handled by loadData() — server returns cols array
 }
 function applyCollapse() {
   QUARTERS.forEach(({ qi }) => {
@@ -1043,8 +1057,7 @@ document.addEventListener("keydown", e => {
 });
 
 // ── INIT ──
-loadCollapseState();
-render();
+loadData(); // async: fetches server data then calls render()
 
 /* ── FLOATING HEADER JS ── */
 function syncFloatHeader() {
